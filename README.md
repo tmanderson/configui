@@ -8,7 +8,7 @@ Create JS property controls from HTML form controls.
 ### The HTML
 Use any valid HTML input types (including `color`)
 
-```
+```html
 <div data-configui>
 	<input type="range" min="0" max="10" step="10" name="speed" />
 	<div data-group="rotation">
@@ -18,10 +18,10 @@ Use any valid HTML input types (including `color`)
 </div>
 ```
 
-### The Markup
+### The JavaScript
 Listen to properties, or defined groups of properties.
 
-```
+```javascript
   ConfigGUI.on('rotation.x', function(value, htmlEvent) {
     console.log(e);
   })
