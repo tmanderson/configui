@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ConfiGUI</title>
+  <link href="../dist/configui.css" type="text/css" rel="stylesheet" />
+  <style>
+    html, body {
+      height:  100vh;
+      margin:  0;
+      padding:  0;
+      width:  100vw;
+      overflow:  hidden;
+    }
+
+    body {
+      display: flex;
+      font-family: "Hack", monospace;
+    }
+
+    aside {
+      border-right:  2px solid #ACACAC;
+      flex:  0 1 auto;
+      padding: 20px 10px;
+      width:  20%;
+    }
+
+    main {
+      flex:  0 1 auto;
+      padding: 20px 40px;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+  <aside data-configui>
+    <input type="color" name="fill" />
+    <div data-group="perspective">
+      <input type="checkbox" name="active" />
+      <input type="range" min="100" max="1000" step="10" name="value" />
+    </div>
+    <div data-group="rotate">
+      <input type="range" min="-3.15" max="3.15" step="0.1" name="x" />
+      <input type="range" min="-3.15" max="3.15" step="0.1" name="y" />
+      <input type="range" min="-3.15" max="3.15" step="0.1" name="z" />
+    </div>
+  </aside>
+  <main>
+    <section>
+      <h2>Entire Config</h2>
+      <pre>{}</pre>
+    </section>
+    <section>
+      <h2></h2>
+      <pre></pre>
+    </section>
+  </main>
+  <script src="../dist/configui.js"></script>
+  <script>
+    const cui = new ConfiGUI();
+    const s1 = document.querySelector('section:first-child')
+    const s2 = document.querySelector('section:last-child')
+
+    /** Listen to entire configuration */
+    cui.on(function(value) {
+      s1.querySelector('pre').innerText = JSON.stringify(value, null, 2);
+    });
+
+    /** Listen to all perspective values */
+    cui.on('perspective', function(value, htmlEvent) {
+      s2.children[0].innerText = 'Changing perspective';
+      s2.children[1].innerText = JSON.stringify(value, null, 2);
+    });
+
+    /** Listen to all rotation values */
+    cui.on('rotate', function(value) {
+      s2.children[0].innerText = 'Changing rotation';
+      s2.children[1].innerText = JSON.stringify(value, null, 2);
+    });
+
+    /** Listen to one rotation group value */
+    cui.on('rotate.x', function(value) {
+      s2.children[0].innerText = 'Changing rotation.x';
+      s2.children[1].innerText = value;
+    });
+
+    /** Listen to one rotation group value */
+    cui.on('rotate.y', function(value) {
+      s2.children[0].innerText = 'Changing rotation.y';
+      s2.children[1].innerText = value;
+    });
+
+    /** Listen to one rotation group value */
+    cui.on('rotate.z', function(value) {
+      s2.children[0].innerText = 'Changing rotation.z';
+      s2.children[1].innerText = value;
+    });
+  </script>
+</body>
+</html>

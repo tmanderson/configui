@@ -1,0 +1,119 @@
+$box-size: 18px;
+$slider-thumb-height: 20px;
+$slider-thumb-width: 10px;
+
+[data-configui], [data-configui] [data-group] {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  line-height: 1em;
+  font-size: 18px;
+  justify-content: flex-start;
+
+  [data-group] {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin: 10px 0;
+    padding: 10px;
+    width: calc(100% - 25px);
+  }
+
+  .label-wrap {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+
+    input {
+      flex: 0 1 auto;
+    }
+
+    label {
+      flex: 0 1 auto;
+    }
+  }
+
+  input {
+    min-height: 2em;
+    margin: 10px 0;
+  }
+
+	input[type="checkbox"], input[type="radio"] {
+    color: white;
+		cursor: pointer;
+    position: relative;
+		appearance: none;
+		outline: none;
+		border: 2px solid black;
+		height: $box-size;
+    min-height: $box-size;
+		width: #{$box-size + 5px};
+
+		&:checked {
+      background-color: #1194f6;
+			background-position: 30% 80%, 200%;
+			background-repeat: no-repeat;
+			background-size: 60%, 80%;
+		}
+
+    &:after {
+      content: "✔︎";
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      text-align: center;
+    }
+	}
+
+	input[type="color"] {
+		appearance: none;
+		cursor: pointer;
+		outline: none;
+		border: 0;
+		margin: -0.4em 0;
+		padding: 0;
+		height: $box-size;
+    min-height: $box-size;
+		width: #{$box-size + 5px};
+
+		&::-webkit-color-swatch-wrapper {
+			padding: 0;
+		}
+
+		&::-webkit-color-swatch {
+			border: 0;
+		}
+	}
+
+	input[type="range"] {
+		appearance: none;
+		outline: none;
+
+		&::-webkit-slider-thumb {
+			appearance: none;
+			border: 1px solid black;
+			background: linear-gradient(#333, #777);
+			border-radius: 0;
+			margin: #{-$slider-thumb-height/2px}px 0 0;
+			height: $slider-thumb-height;
+			width: $slider-thumb-width;
+
+			&:hover {
+				cursor: grab;
+			}
+
+			&:active {
+				cursor: grabbing;
+			}
+		}
+
+		&::-webkit-slider-runnable-track {
+			border-top: 1px solid black;
+			border-bottom: 1px solid gray;
+			height: 2px;
+		}
+	}
+}

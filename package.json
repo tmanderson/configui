@@ -1,0 +1,28 @@
+{
+  "name": "configui",
+  "version": "0.1.0",
+  "description": "Create property controls from HTML form controls",
+  "main": "dist/configui.min.js",
+  "scripts": {
+    "build:css": "node-sass assets/main.scss dist/configui.css && postcss dist/configui.css --use autoprefixer -r",
+    "build:babel": "babel -o ./dist/configui.tmp.js ./src",
+    "build:browser": "browserify -s ConfiGUI -e ./src/index.js -o ./dist/configui.js -t [ babelify --presets [env] ]",
+    "build:uglify": "uglifyjs ./dist/configui.js > ./dist/configui.min.js",
+    "build": "npm run build:browser && npm run build:uglify && npm run postbuild && npm run build:css",
+    "prebuild": "rm -rf ./dist && mkdir ./dist",
+    "postbuild": "rm -rf ./dist/configui.tmp.js",
+    "start:dev": "php -S localhost:8080 & watch 'npm run build' src"
+  },
+  "author": "Mitch Anderson <http://github.com/tmanderson>",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^6.7.7",
+    "babel-cli": "^6.24.0",
+    "babel-preset-env": "^1.2.2",
+    "babelify": "^7.3.0",
+    "browserify": "^14.1.0",
+    "node-sass": "^4.5.1",
+    "postcss-cli": "^3.0.0",
+    "uglifyjs": "^2.4.10"
+  }
+}
