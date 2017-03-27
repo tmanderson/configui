@@ -1,5 +1,5 @@
 {
-  "name": "configui",
+  "name": "config-ui",
   "version": "0.1.0",
   "description": "Create property controls from HTML form controls",
   "main": "dist/configui.min.js",

@@ -1,4 +1,4 @@
-# CONFIGUI
+# CONFIG-UI
 
 Create JS property controls from HTML form controls.
 
@@ -22,11 +22,11 @@ Use any valid HTML input types (including `color`)
 Listen to properties, or defined groups of properties.
 
 ```javascript
-  ConfigGUI.on('rotation.x', function(value, htmlEvent) {
+  ConfiGUI.on('rotation.x', function(value, htmlEvent) {
     console.log(e);
   })
 
-  ConfigGUI.on('fill', function(value, htmlEvent) {
+  ConfiGUI.on('fill', function(value, htmlEvent) {s
     console.log(color);
   })
 ```
