@@ -60,7 +60,7 @@ var ConfiGUI = exports.ConfiGUI = function () {
     this.updateLabels();
 
     this.on(function (v, e) {
-      var value = v[e.target.name] || e.target.value;
+      var value = v[e.target.name] || _this.get(e.target.name);
 
       if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
         _this.updateLabel(value);
@@ -78,6 +78,7 @@ var ConfiGUI = exports.ConfiGUI = function () {
       this.inputs.forEach(function (el) {
         return _this2.updateLabel(_defineProperty({}, el.name, _this2.get(el.name)));
       });
+
       this.groups.forEach(function (el) {
         var sp = document.createElement('span');
         sp.innerText = el.dataset.group;

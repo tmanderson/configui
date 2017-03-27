@@ -31,7 +31,7 @@ export class ConfiGUI {
     this.updateLabels();
 
     this.on((v, e) => {
-      const value = v[e.target.name] || e.target.value;
+      const value = v[e.target.name] || this.get(e.target.name);
 
       if(typeof value === 'object') {
         this.updateLabel(value);
@@ -80,7 +80,7 @@ export class ConfiGUI {
           wrap.appendChild(label);
         }
 
-        label.innerText = values[key]
+        label.innerText = values[key];
       });
   }
 
