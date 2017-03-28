@@ -13,6 +13,25 @@ function getValue(el) {
   return !value && value !== false ? el.value : value;
 }
 
+function wrapInput(inputElement) {
+  const wrap = document.createElement('div');
+  wrap.className = 'label-wrap';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', inputElement.name);
+  label.innerText = inputElement.name;
+  wrap.appendChild(label);
+
+  const value = document.createElement('span');
+  value.dataset.for = inputElement.name;
+  value.innerText = inputElement.value;
+
+  wrap.appendChild(value);
+
+  inputElement.parentNode.replaceChild(wrap, inputElement);
+  wrap.insertBefore(inputElement, value);
+}
+
 export class ConfiGUI {
   get groups() { return Array.from(this.root.querySelectorAll('[data-group]')); }
   get inputs() { return Array.from(this.root.querySelectorAll('input:not([data-group-item])')); }
@@ -28,7 +47,7 @@ export class ConfiGUI {
         }
       });
 
-    this.updateLabels();
+    this.createLabels();
 
     this.on((v, e) => {
       const value = v[e.target.name] || this.get(e.target.dataset.groupItem || e.target.name);
@@ -42,53 +61,30 @@ export class ConfiGUI {
     });
   }
 
-  updateLabels() {
-    this.inputs.forEach(el => this.updateLabel({ [el.name]: this.get(el.name) }));
-
+  createLabels() {
     this.groups.forEach(el => {
-      let sp = document.createElement('span');
+      let sp = document.createElement('h2');
       sp.innerText = el.dataset.group;
       el.insertBefore(sp, el.children[0]);
-      this.updateLabel(this.get(el.dataset.group), { target: el });
+      Array.from(el.children).forEach(el => el.tagName === 'INPUT' && wrapInput(el));
     });
+
+    this.inputs.forEach(el => wrapInput(el));
   }
 
   updateLabel(values, e) {
     if(e && e.target.dataset.noLabel) return;
-    let root = e && e.target || this.root;
+    let root = this.root;
 
-    if(root.dataset.groupItem) {
+    if(e.target.dataset.groupItem) {
       root = this.groups.find(el => {
-        return el.dataset.group === (root.dataset.groupItem || root.dataset.group);
+        return el.dataset.group === (e.target.dataset.groupItem || e.target.dataset.group);
       });
     }
 
-    let el, label, wrap, parent;
-
     Object.keys(values)
       .forEach(key => {
-        el = root.querySelector(`input[name="${key}"]`);
-        label = root.querySelector(`[data-for="${key}"]`);
-
-        if(!label) {
-          wrap = document.createElement('div');
-          wrap.className = 'label-wrap';
-          label = document.createElement('label');
-          label.dataset.for = el.name;
-
-          if(el.nextSibling) {
-            el.parentNode.insertBefore(label, el.nextSibling);
-          }
-          else {
-            el.parentNode.appendChild(label);
-          }
-
-          el.parentNode.replaceChild(wrap, el);
-          wrap.appendChild(el);
-          wrap.appendChild(label);
-        }
-
-        label.innerText = values[key];
+        (root.querySelector(`span[data-for="${key}"]`) || {}).innerText = values[key];
       });
   }
 
