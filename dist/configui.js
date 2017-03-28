@@ -60,12 +60,13 @@ var ConfiGUI = exports.ConfiGUI = function () {
     this.updateLabels();
 
     this.on(function (v, e) {
-      var value = v[e.target.name] || _this.get(e.target.name);
+      var value = v[e.target.name] || _this.get(e.target.dataset.groupItem || e.target.name);
 
       if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
-        _this.updateLabel(value);
+        console.log(e);
+        _this.updateLabel(value, e);
       } else {
-        _this.updateLabel(_defineProperty({}, e.target.name, value));
+        _this.updateLabel(_defineProperty({}, e.target.name, value), e);
       }
     });
   }
@@ -83,23 +84,29 @@ var ConfiGUI = exports.ConfiGUI = function () {
         var sp = document.createElement('span');
         sp.innerText = el.dataset.group;
         el.insertBefore(sp, el.children[0]);
-        _this2.updateLabel(_this2.get(el.dataset.group));
+        _this2.updateLabel(_this2.get(el.dataset.group), { target: el });
       });
     }
   }, {
     key: 'updateLabel',
     value: function updateLabel(values, e) {
-      var _this3 = this;
-
       if (e && e.target.dataset.noLabel) return;
+      var root = e && e.target || this.root;
+
+      if (root.dataset.groupItem) {
+        root = this.groups.find(function (el) {
+          return el.dataset.group === (root.dataset.groupItem || root.dataset.group);
+        });
+      }
+
       var el = void 0,
           label = void 0,
           wrap = void 0,
           parent = void 0;
 
       Object.keys(values).forEach(function (key) {
-        el = _this3.root.querySelector('input[name="' + key + '"]');
-        label = _this3.root.querySelector('[data-for="' + key + '"]');
+        el = root.querySelector('input[name="' + key + '"]');
+        label = root.querySelector('[data-for="' + key + '"]');
 
         if (!label) {
           wrap = document.createElement('div');
@@ -124,13 +131,13 @@ var ConfiGUI = exports.ConfiGUI = function () {
   }, {
     key: 'get',
     value: function get(name) {
-      var _this4 = this;
+      var _this3 = this;
 
       if (!name) {
         return Object.assign({}, this.inputs.reduce(function (values, el) {
           return Object.assign(values, _defineProperty({}, el.name, el.value));
         }, {}), this.groups.reduce(function (values, el) {
-          return Object.assign(values, _defineProperty({}, el.dataset.group, _this4.get(el.dataset.group)));
+          return Object.assign(values, _defineProperty({}, el.dataset.group, _this3.get(el.dataset.group)));
         }, {}));
       }
 
@@ -161,7 +168,7 @@ var ConfiGUI = exports.ConfiGUI = function () {
   }, {
     key: 'on',
     value: function on(name, callback) {
-      var _this5 = this;
+      var _this4 = this;
 
       var cb = void 0,
           el = void 0;
@@ -177,7 +184,7 @@ var ConfiGUI = exports.ConfiGUI = function () {
       if (!el) throw new Error('The selector must map to an input...');
 
       cb = function cb(e) {
-        return callback.call(null, _this5.get(name), e);
+        return callback.call(null, _this4.get(name), e);
       };
 
       el.addEventListener('input', cb, el.tagName !== 'INPUT');

@@ -31,13 +31,13 @@ export class ConfiGUI {
     this.updateLabels();
 
     this.on((v, e) => {
-      const value = v[e.target.name] || this.get(e.target.name);
+      const value = v[e.target.name] || this.get(e.target.dataset.groupItem || e.target.name);
 
       if(typeof value === 'object') {
-        this.updateLabel(value);
+        this.updateLabel(value, e);
       }
       else {
-        this.updateLabel({ [e.target.name]: value });
+        this.updateLabel({ [e.target.name]: value }, e);
       }
     });
   }
@@ -49,18 +49,26 @@ export class ConfiGUI {
       let sp = document.createElement('span');
       sp.innerText = el.dataset.group;
       el.insertBefore(sp, el.children[0]);
-      this.updateLabel(this.get(el.dataset.group))
+      this.updateLabel(this.get(el.dataset.group), { target: el });
     });
   }
 
   updateLabel(values, e) {
     if(e && e.target.dataset.noLabel) return;
+    let root = e && e.target || this.root;
+
+    if(root.dataset.groupItem) {
+      root = this.groups.find(el => {
+        return el.dataset.group === (root.dataset.groupItem || root.dataset.group);
+      });
+    }
+
     let el, label, wrap, parent;
 
     Object.keys(values)
       .forEach(key => {
-        el = this.root.querySelector(`input[name="${key}"]`);
-        label = this.root.querySelector(`[data-for="${key}"]`);
+        el = root.querySelector(`input[name="${key}"]`);
+        label = root.querySelector(`[data-for="${key}"]`);
 
         if(!label) {
           wrap = document.createElement('div');
