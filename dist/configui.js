@@ -27,7 +27,7 @@ function getSelector(name) {
 function getValue(el) {
   var value = /^(checkbox|radio)/i.test(el.type) ? el.checked : parseFloat(el.value);
   if (!value && typeof value === 'number' && value !== 0) return el.value;
-  return !value && value !== false ? e.target.value : value;
+  return !value && value !== false ? el.value : value;
 }
 
 var ConfiGUI = exports.ConfiGUI = function () {
