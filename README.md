@@ -2,7 +2,7 @@
 
 Create JS property controls from HTML form controls.
 
-![Example](assets/example.gif "Example")
+![Example](https://github.com/tmanderson/configui/blob/master/assets/example.gif "Example")
 
 
 ### The HTML
