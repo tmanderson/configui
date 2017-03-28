@@ -1,8 +1,9 @@
 {
   "name": "config-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create property controls from HTML form controls",
   "main": "dist/configui.min.js",
+  "keywords": ["config", "gui", "ui", "configuration", "controls", "forms", "HTML"],
   "scripts": {
     "build:css": "node-sass assets/main.scss dist/configui.css && postcss dist/configui.css --use autoprefixer -r",
     "build:babel": "babel -o ./dist/configui.tmp.js ./src",
