@@ -134,7 +134,11 @@ var ConfiGUI = exports.ConfiGUI = function () {
         }, {}));
       }
 
-      var el = this.root.querySelector(getSelector(name)) || this.root.querySelector(getSelector(name, true));
+      var el = this.inputs.find(function (el) {
+        return el.name === name;
+      }) || this.groups.find(function (el) {
+        return el.dataset.group === name;
+      });
 
       // if `name` references a group, return an object with all of its values
       if (el && el.tagName !== 'INPUT') {
@@ -148,7 +152,19 @@ var ConfiGUI = exports.ConfiGUI = function () {
   }, {
     key: 'set',
     value: function set(name, value) {
-      var el = this.root.querySelector(getSelector(name)) || this.root.querySelector(getSelector(name, true));
+      var _this3 = this;
+
+      if (!value && (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
+        return Object.keys(name).forEach(function (key) {
+          return _this3.set(key, name[key]);
+        });
+      }
+
+      var el = this.inputs.find(function (el) {
+        return el.name === name;
+      }) || this.groups.find(function (el) {
+        return el.dataset.group === name;
+      });
 
       if (el && el.tagName !== 'INPUT') {
         return Array.from(el.querySelectorAll('input')).forEach(function (el) {
@@ -161,7 +177,7 @@ var ConfiGUI = exports.ConfiGUI = function () {
   }, {
     key: 'on',
     value: function on(name, callback) {
-      var _this3 = this;
+      var _this4 = this;
 
       var cb = void 0,
           el = void 0;
@@ -177,7 +193,7 @@ var ConfiGUI = exports.ConfiGUI = function () {
       if (!el) throw new Error('The selector must map to an input...');
 
       cb = function cb(e) {
-        return callback.call(null, _this3.get(name), e);
+        return callback.call(null, _this4.get(name), e);
       };
 
       el.addEventListener('input', cb, el.tagName !== 'INPUT');

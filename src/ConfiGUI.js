@@ -98,7 +98,7 @@ export class ConfiGUI {
       );
     }
 
-    const el = this.root.querySelector(getSelector(name)) || this.root.querySelector(getSelector(name, true));
+    const el = this.inputs.find(el => el.name === name) || this.groups.find(el => el.dataset.group === name);
 
     // if `name` references a group, return an object with all of its values
     if(el && el.tagName !== 'INPUT') {
@@ -111,7 +111,12 @@ export class ConfiGUI {
   }
 
   set(name, value) {
-    const el = this.root.querySelector(getSelector(name)) || this.root.querySelector(getSelector(name, true));
+    if(!value && typeof name === 'object') {
+      return Object.keys(name)
+        .forEach(key => this.set(key, name[key]));
+    }
+
+    const el = this.inputs.find(el => el.name === name) || this.groups.find(el => el.dataset.group === name);
 
     if(el && el.tagName !== 'INPUT') {
       return Array.from(el.querySelectorAll('input'))
