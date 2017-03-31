@@ -4,29 +4,73 @@ Create JS property controls from HTML form controls.
 
 ![Example](https://github.com/tmanderson/configui/blob/master/assets/example.gif "Example")
 
+Create all the controls you need (no need to create labels/value placeholders) and
+ConfiGUI will handle the rest.
 
 ### The HTML
 Use any valid HTML input types (including `color`)
 
+#### Primary control group
 ```html
 <div data-configui>
-	<input type="range" min="0" max="10" step="10" name="speed" />
-	<div data-group="rotation">
-		<input name="x" min="3.15" max="3.15" step="0.01" />
-		<input name="y" min="3.15" max="3.15" step="0.01" />
+	...
+</div>
+```
+
+#### Control Group
+```html
+<div data-configui>
+	<div data-group="rotate">
+		...
+	</div>
+</div>
+```
+
+#### Controls
+```html
+<div data-configui>
+	<div data-group="rotate">
+		<input type="range" name="x" value="0" min="-1.57" max="1.57" step="0.1" />
 	</div>
 </div>
 ```
 
 ### The JavaScript
-Listen to properties, or defined groups of properties.
+Getters, setters, and listeners.
+
+#### ConfiGUI([HTMLElement])
+The element argument is optional (and if omitted, configui *will use the
+first* `data-configui` element on the page)
 
 ```javascript
-  ConfiGUI.on('rotation.x', function(value, htmlEvent) {
-    console.log(e);
+const cui = new ConfiGUI();
+```
+
+#### #get(key)
+Get a value from control model.
+
+```javascript
+cui.get('rotate') // => { x: 0 }
+cui.get('rotate.x') // => 0
+```
+
+#### #set(key, value)
+Set a value (and update related UI).
+
+```javascript
+cui.set('rotate', { x: Math.PI })
+cui.set('rotate.x', Math.PI)
+```
+
+#### #on(key, callback)
+Listen to changes on the control model and execute supplied callback.
+
+```javascript
+  cui.on('rotate.x', function(value, htmlEvent) {
+    console.log(value) // => 2.12
   })
 
-  ConfiGUI.on('fill', function(value, htmlEvent) {s
-    console.log(color);
+  cui.on('rotate', function(value, htmlEvent) {
+		console.log(value) // => { x: 2.12 }
   })
 ```
