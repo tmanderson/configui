@@ -1,156 +1,76 @@
-function getSelector(name, group=false) {
-  // Any dot-delimeted name assumes inputs in preceeding groups.
-  // e.g. `something.else.a` => `[data-group="something"] [data-group="else"] input[name="a"]
-  return name.split('.').reduce((selector, name, i, names) => {
-    if(group || i < names.length-1) return selector + ' [data-group="' + name + '"]';
-    return selector + ' input[name="' + name + '"]';
-  }, '');
+import { closest, valueOf, parents, get, set, createLabels } from './util';
+
+function handleInput(e) {
+  const name = e.target.dataset.ns;
+  const val = valueOf(e.target);
+  const model = set(this.model, name, val);
+
+  e.target.nextElementSibling.innerText = val;
+
+  if(this.listeners[name]) {
+    this.listeners[name].forEach(fn => fn.call(null, val, this.model, e));
+  }
+
+  this.listeners['*'].forEach(fn => fn.call(null, model, e));
 }
 
-function getValue(el) {
-  let value = /^(checkbox|radio)/i.test(el.type) ? el.checked : parseFloat(el.value);
-  if(!value && typeof value === 'number' && value !== 0) return el.value;
-  return !value && value !== false ? el.value : value;
-}
-
-function wrapInput(inputElement) {
-  const wrap = document.createElement('div');
-  wrap.className = 'label-wrap';
-
-  const label = document.createElement('label');
-  label.setAttribute('for', inputElement.name);
-  label.innerText = inputElement.name;
-  wrap.appendChild(label);
-
-  const value = document.createElement('span');
-  value.dataset.for = inputElement.name;
-  value.innerText = inputElement.value;
-
-  wrap.appendChild(value);
-
-  inputElement.parentNode.replaceChild(wrap, inputElement);
-  wrap.insertBefore(inputElement, value);
-}
-
-export class ConfiGUI {
-  get groups() { return Array.from(this.root.querySelectorAll('[data-group]')); }
-  get inputs() { return Array.from(this.root.querySelectorAll('input:not([data-group-item])')); }
+export default class ConfiGUI {
+  get inputs() { return Array.from(this.root.querySelectorAll('input')); }
 
   constructor(el) {
-    this.root = el || document.body.querySelector('[data-configui]:not([data-active="true"])');
-    if(this.root) this.root.dataset.active = true;
+    this.root = el || document.querySelector('[data-configui]:not([data-active])');
+    if(!this.root) throw new Error('No [data-configui] element found and none provided to constructor');
 
-    Array.from(this.root.querySelectorAll('input'))
-      .forEach(el => {
-        if(el.parentNode.dataset.group) {
-          el.dataset.groupItem = el.parentNode.dataset.group;
-        }
-      });
+    this.listeners = { '*': [] };
 
-    this.createLabels();
+    this.inputs.forEach(input => {
+      const group = parents(input, '[data-group]');
+      const ns = group.map(el => el.dataset.group).concat(input.name).join('.');
 
-    this.on((v, e) => {
-      const value = v[e.target.name] || this.get(e.target.dataset.groupItem || e.target.name);
-
-      if(typeof value === 'object') {
-        this.updateLabel(value, e);
-      }
-      else {
-        this.updateLabel({ [e.target.name]: value }, e);
-      }
-    });
-  }
-
-  createLabels() {
-    this.groups.forEach(el => {
-      let sp = document.createElement('h2');
-      sp.innerText = el.dataset.group;
-      el.insertBefore(sp, el.children[0]);
-      Array.from(el.children).forEach(el => el.tagName === 'INPUT' && wrapInput(el));
+      input.dataset.ns = ns;
     });
 
-    this.inputs.forEach(el => wrapInput(el));
-  }
+    this.model = valueOf(this.root);
+    createLabels(this.root);
 
-  updateLabel(values, e) {
-    if(e && e.target.dataset.noLabel) return;
-    let root = this.root;
-
-    if(e.target.dataset.groupItem) {
-      root = this.groups.find(el => {
-        return el.dataset.group === (e.target.dataset.groupItem || e.target.dataset.group);
-      });
-    }
-
-    Object.keys(values)
-      .forEach(key => {
-        (root.querySelector(`span[data-for="${key}"]`) || {}).innerText = values[key];
-      });
-  }
-
-  get(name) {
-    if(!name) {
-      return Object.assign({},
-        this.inputs.reduce((values, el) => Object.assign(values, { [el.name]: el.value }), {}),
-        this.groups.reduce((values, el) => Object.assign(values, {
-          [el.dataset.group]: this.get(el.dataset.group)
-        }), {})
-      );
-    }
-
-    const el = this.inputs.find(el => el.name === name) || this.groups.find(el => el.dataset.group === name);
-
-    // if `name` references a group, return an object with all of its values
-    if(el && el.tagName !== 'INPUT') {
-      return Array.from(el.querySelectorAll('input'))
-        .reduce((group, el) => Object.assign(group, { [el.name]: getValue(el) } ), {});
-    }
-    else {
-      return getValue(el);
-    }
+    this.root.addEventListener('input', handleInput.bind(this), true);
+    this.root.addEventListener('change', handleInput.bind(this), true);
   }
 
   set(name, value) {
-    if(!value && typeof name === 'object') {
-      return Object.keys(name)
-        .forEach(key => this.set(key, name[key]));
+    if(typeof value === 'object') {
+      return Object.keys(value)
+        .map(key => this.set([name, key].join('.'), value[key]));
     }
 
-    const el = this.inputs.find(el => el.name === name) || this.groups.find(el => el.dataset.group === name);
+    const target = this.root.querySelector(`[data-ns="${name}"]`);
 
-    if(el && el.tagName !== 'INPUT') {
-      return Array.from(el.querySelectorAll('input'))
-        .forEach(el => (el.value = (value[el.name] || value)));
+    if(/check|radio/.test(target.type)) {
+      target.checked = !!value;
     }
     else {
-      el.value = value;
+      target.value = value;
     }
+
+    handleInput.call(this, { target, type: 'custom' });
+  }
+
+  get(name) {
+    return get(this.model, name);
   }
 
   on(name, callback) {
-    let cb, el;
-
     if(typeof name === 'function') {
       callback = name;
-      name = undefined;
-      el = this.root;
-    }
-    else {
-      el = this.root.querySelector(getSelector(name)) || this.root.querySelector(getSelector(name, true));
+      name = '*';
     }
 
-    if(!el) throw new Error('The selector must map to an input...');
-
-    cb = e => callback.call(null, this.get(name), e);
-
-    el.addEventListener('input', cb, el.tagName !== 'INPUT');
-    el.addEventListener('change', cb, el.tagName !== 'INPUT');
-
-    return this.off.bind(this, el, cb);
+    this.listeners[name] = [].concat(this.listeners[name] || []).concat(callback);
+    const i = this.listeners[name].length - 1;
+    return () => this.listeners[name].splice(i, 1);
   }
 
-  off(el, callback) {
-    el.removeEventListener('input', callback, el.tagName !== 'INPUT');
-    el.removeEventListener('change', callback, el.tagName !== 'INPUT');
+  off(name, fn) {
+    this.listeners[name].splice(this.listeners[name].findIndex(fn), 1);
   }
 }

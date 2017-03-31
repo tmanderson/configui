@@ -1,2 +1,2 @@
-import { ConfiGUI } from './ConfiGUI';
+import ConfiGUI from './configui';
 module.exports = ConfiGUI;
