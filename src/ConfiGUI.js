@@ -56,7 +56,7 @@ export default class ConfiGUI {
   }
 
   get(name) {
-    return get(this.model, name);
+    return name ? get(this.model, name) : this.model;
   }
 
   on(name, callback) {
